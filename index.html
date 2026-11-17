@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Recoder</title>
+  <meta name="theme-color" content="#10141b">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="recorder.css">
+  <script defer src="recorder.js"></script>
+  <script defer src="offline.js"></script>
+</head>
+<body>
+  <main aria-label="Camera recorder">
+    <canvas id="unity-canvas" width="393" height="852" tabindex="-1"></canvas>
+    <div id="media" hidden>
+      <video id="preview" muted playsinline hidden></video>
+      <video id="playback" playsinline controls hidden></video>
+    </div>
+    <p id="offline-status" role="status">Preparing offline access…</p>
+    <dialog id="hide-exit" aria-labelledby="hide-exit-title" lang="ja">
+      <h2 id="hide-exit-title">HidePanelを非表示にしますか？</h2>
+      <p id="hide-exit-status"></p>
+      <div class="hide-exit-actions">
+        <button type="button" id="hide-exit-yes">はい</button>
+        <button type="button" id="hide-exit-no" autofocus>いいえ</button>
+        <button type="button" id="hide-exit-discard">破棄する</button>
+        <button type="button" id="hide-exit-download">ダウンロードする</button>
+      </div>
+    </dialog>
+    <p id="loading" role="status">Loading camera recorder…</p>
+  </main>
+  <script>
+    const unityLoader = "Build/4b5c69902ebe78bb670dcf6d671a07d6.loader.js";
+    const unityConfig = {
+      dataUrl: "Build/b266baf77a0022e8ce860a6118ab266e.data",
+      frameworkUrl: "Build/ed6bca5e6af4619aa907183ff2195428.framework.js",
+      codeUrl: "Build/d161a87ab53d5755c11f3ce09f61e18b.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Recoder",
+      productName: "Recoder",
+      productVersion: "1.0"
+    };
+  </script>
+</body>
+</html>
+
+
