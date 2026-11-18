@@ -99,3 +99,11 @@ canvas { touch-action: none; }
 #recordings-list { list-style: none; margin: 12px 0; padding: 0; }
 #recordings-list li { padding: 8px 0; border-top: 1px solid #435168; }
 #recordings-list p { margin: 0 0 4px; font-size: 14px; }
+
+#camera-switch {
+  position: absolute;
+  top: 8%;
+  right: 4.1%;
+  min-height: 44px;
+  padding: 6px 12px;
+}

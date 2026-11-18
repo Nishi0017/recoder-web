@@ -25,6 +25,7 @@ let selectedRecordingId;
 let libraryBusy = false;
 let opening = false;
 let cameraRequest = 0;
+let cameraFacing = "environment";
 
 function send(method, value) {
   if (unity) queueMicrotask(() => unity.SendMessage("BrowserRecorder", method, value));
@@ -93,7 +94,7 @@ async function openCamera() {
   try {
     const camera = await navigator.mediaDevices.getUserMedia({
       audio: false,
-      video: { facingMode: { ideal: "environment" } }
+      video: { facingMode: { ideal: cameraFacing } }
     });
     if (request !== cameraRequest) {
       camera.getTracks().forEach(track => track.stop());
@@ -111,7 +112,10 @@ async function openCamera() {
       releaseCamera();
       showState("idle", "The camera was disconnected.");
     });
-    showState("ready", "Ready to record.");
+    const actualFacing = camera.getVideoTracks()[0].getSettings().facingMode;
+    const differentCamera = actualFacing && actualFacing !== cameraFacing;
+    if (actualFacing === "user" || actualFacing === "environment") cameraFacing = actualFacing;
+    showState("ready", differentCamera ? "Requested camera unavailable. Using available camera." : "Ready to record.");
   } catch (error) {
     if (request !== cameraRequest) return;
     releaseCamera();
@@ -289,6 +293,7 @@ function setHidePanel(active) {
   if (themeColor) themeColor.content = active ? "#000000" : defaultThemeColor;
   document.querySelector("#offline-status").hidden = active;
   libraryButton.hidden = active;
+  cameraSwitchButton.hidden = active;
   if (active) playback.pause();
   updateMediaVisibility();
 }
@@ -335,6 +340,16 @@ exitDownload.addEventListener("click", async () => {
 });
 
 const libraryButton = document.querySelector("#recordings-button");
+const cameraSwitchButton = document.querySelector("#camera-switch");
+cameraSwitchButton.addEventListener("click", async () => {
+  if (recorder || opening || libraryBusy || currentState === "stopping") return;
+  cameraFacing = cameraFacing === "environment" ? "user" : "environment";
+  if (stream) {
+    releaseCamera();
+    await openCamera();
+  }
+  updateLibraryButton();
+});
 const libraryDialog = document.querySelector("#recordings-dialog");
 const libraryList = document.querySelector("#recordings-list");
 const libraryMessage = document.querySelector("#recordings-message");
@@ -342,6 +357,8 @@ const libraryPreview = document.querySelector("#recordings-preview");
 const libraryDownload = document.querySelector("#recordings-download");
 
 function updateLibraryButton() {
+  cameraSwitchButton.disabled = Boolean(recorder || opening || libraryBusy || currentState === "stopping");
+  cameraSwitchButton.textContent = cameraFacing === "environment" ? "前面カメラへ" : "背面カメラへ";
   libraryButton.disabled = Boolean(recorder || opening || libraryBusy || stream || currentState === "stopping");
 }
 
