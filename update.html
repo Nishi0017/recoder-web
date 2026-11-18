@@ -16,8 +16,8 @@ button.onclick=async()=>{
   await registration.update();
   const deadline=Date.now()+120000;
   while(Date.now()<deadline){
-   if(await version(registration.active)==='9'){location.replace('./');return;}
-   if(registration.waiting && await version(registration.waiting)==='9')registration.waiting.postMessage({type:'ACTIVATE_UPDATE'});
+   if(await version(registration.active)==='10'){location.replace('./');return;}
+   if(registration.waiting && await version(registration.waiting)==='10')registration.waiting.postMessage({type:'ACTIVATE_UPDATE'});
    await new Promise(resolve=>setTimeout(resolve,500));
   }
   throw new Error('更新に時間がかかっています。接続を確認して、もう一度お試しください。');

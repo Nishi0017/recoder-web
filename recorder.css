@@ -130,3 +130,9 @@ canvas { touch-action: none; }
 #quality-dialog select { width: 100%; min-height: 44px; margin-top: 6px; font: inherit; }
 #quality-dialog button { min-height: 44px; padding: 6px 12px; margin: 4px; }
 #quality-dialog p { font-size: 14px; line-height: 1.5; }
+
+/* Scene Canvas owns these controls after Unity starts. Keep DOM actions for dialogs. */
+:root[data-unity-controls] #recordings-button,
+:root[data-unity-controls] #quality-button,
+:root[data-unity-controls] #camera-switch,
+:root[data-unity-controls] #offline-status { display: none !important; }

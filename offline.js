@@ -2,9 +2,14 @@
 
 const offlineStatus = document.querySelector("#offline-status");
 
+function setOfflineStatus(message) {
+  offlineStatus.textContent = message;
+  window.recorderUnity?.SendMessage("BrowserRecorder", "SetOfflineStatus", message);
+}
+
 async function prepareOffline() {
   if (!("serviceWorker" in navigator)) {
-    offlineStatus.textContent = "Offline unavailable";
+    setOfflineStatus("Offline unavailable");
     return;
   }
 
@@ -13,7 +18,7 @@ async function prepareOffline() {
       updateViaCache: "none"
     });
     if (registration.active?.state === "activated") {
-      offlineStatus.textContent = "Offline ready";
+      setOfflineStatus("Offline ready");
       return;
     }
 
@@ -21,7 +26,7 @@ async function prepareOffline() {
       if (!worker) return;
       function showInstallError() {
         if (worker.state === "redundant" && !registration.active) {
-          offlineStatus.textContent = "Offline setup failed";
+          setOfflineStatus("Offline setup failed");
         }
       }
       worker.addEventListener("statechange", showInstallError);
@@ -31,9 +36,9 @@ async function prepareOffline() {
     watch(registration.installing);
 
     await navigator.serviceWorker.ready;
-    offlineStatus.textContent = "Offline ready";
+    setOfflineStatus("Offline ready");
   } catch {
-    offlineStatus.textContent = "Offline setup failed";
+    setOfflineStatus("Offline setup failed");
   }
 }
 

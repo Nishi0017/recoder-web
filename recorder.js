@@ -453,6 +453,12 @@ function updateLibraryButton() {
   cameraSwitchButton.disabled = Boolean(recorder || opening || libraryBusy || currentState === "stopping");
   cameraSwitchButton.textContent = cameraFacing === "environment" ? "前面カメラへ" : "背面カメラへ";
   libraryButton.disabled = Boolean(recorder || opening || libraryBusy || stream || currentState === "stopping");
+  send("SetBrowserControls", JSON.stringify({
+    recordingsEnabled: !libraryButton.disabled,
+    qualityEnabled: !qualityButton.disabled,
+    cameraSwitchEnabled: !cameraSwitchButton.disabled,
+    frontCamera: cameraFacing === "user"
+  }));
 }
 
 async function refreshLibrary() {
@@ -552,6 +558,9 @@ libraryPreview.addEventListener("error", () => {
 libraryDownload.addEventListener("click", downloadRecording);
 
 window.recoder = {
+  openRecordings() { if (!hidePanelActive) libraryButton.click(); },
+  openQuality() { if (!hidePanelActive) qualityButton.click(); },
+  switchCamera() { if (!hidePanelActive) cameraSwitchButton.click(); },
   confirmHideExit,
   openCamera,
   startRecording,
@@ -576,6 +585,8 @@ loader.onload = async () => {
   try {
     unity = await createUnityInstance(document.querySelector("#unity-canvas"), unityConfig);
     window.recorderUnity = unity;
+    document.documentElement.setAttribute("data-unity-controls", "");
+    send("SetOfflineStatus", document.querySelector("#offline-status").textContent);
     loading.hidden = true;
     showState(currentState, currentMessage);
   } catch (error) {

@@ -3,12 +3,12 @@
 const scope = self.registration.scope;
 const cachePrefix = "recoder-offline:" + scope + ":";
 // Bump this when changing the HTML, styles, scripts, or icons in the Web template.
-const shellRevision = "9";
+const shellRevision = "10";
 const buildFiles = [
-  "Build/4b5c69902ebe78bb670dcf6d671a07d6.loader.js",
-  "Build/b266baf77a0022e8ce860a6118ab266e.data",
-  "Build/ed6bca5e6af4619aa907183ff2195428.framework.js",
-  "Build/d161a87ab53d5755c11f3ce09f61e18b.wasm"
+  "Build/e9555ffc176ec532e8a8e8b6713d1d6a.loader.js",
+  "Build/815e37ea4f1e3faf185a1fa8b6cbd545.data",
+  "Build/620d575c9cd9720a27171baa5bb85144.framework.js",
+  "Build/136e09048cb388b01eb6c3c0688af9ce.wasm"
 ];
 const cacheName = cachePrefix + shellRevision + ":" + buildFiles.join(",");
 const shellFiles = [
@@ -58,6 +58,7 @@ self.addEventListener("fetch", event => {
     return (await cache.match(key)) || fetch(request);
   })());
 });
+
 
 
 
