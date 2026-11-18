@@ -107,3 +107,26 @@ canvas { touch-action: none; }
   min-height: 44px;
   padding: 6px 12px;
 }
+
+#quality-button {
+  position: absolute;
+  top: 8%;
+  left: 4.1%;
+  min-height: 44px;
+  padding: 6px 12px;
+}
+#quality-dialog {
+  width: min(94vw, 420px);
+  max-height: 85dvh;
+  padding: 18px;
+  border: 1px solid #435168;
+  border-radius: 12px;
+  background: #10141b;
+  color: #f2f4f8;
+}
+#quality-dialog::backdrop { background: #000a; }
+#quality-dialog h2 { margin: 0 0 16px; font-size: 20px; }
+#quality-dialog label { display: block; margin-top: 12px; }
+#quality-dialog select { width: 100%; min-height: 44px; margin-top: 6px; font: inherit; }
+#quality-dialog button { min-height: 44px; padding: 6px 12px; margin: 4px; }
+#quality-dialog p { font-size: 14px; line-height: 1.5; }

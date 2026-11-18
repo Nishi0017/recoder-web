@@ -26,6 +26,20 @@ let libraryBusy = false;
 let opening = false;
 let cameraRequest = 0;
 let cameraFacing = "environment";
+const resolutionPresets = {
+  "4k": { width: 3840, height: 2160, label: "4K" },
+  "1080p": { width: 1920, height: 1080, label: "1080p" },
+  "720p": { width: 1280, height: 720, label: "720p" }
+};
+let qualityPreference = { resolution: "4k", fps: 60 };
+try {
+  const saved = JSON.parse(localStorage.getItem("recoder-quality"));
+  if (saved && Object.hasOwn(resolutionPresets, saved.resolution) && [24, 30, 60].includes(saved.fps))
+    qualityPreference = { resolution: saved.resolution, fps: saved.fps };
+} catch {
+  // A restricted storage environment still uses the selected settings for this launch.
+}
+let automaticQuality = false;
 
 function send(method, value) {
   if (unity) queueMicrotask(() => unity.SendMessage("BrowserRecorder", method, value));
@@ -52,6 +66,7 @@ function releaseCamera() {
   }
   preview.srcObject = null;
   preview.hidden = true;
+  updateQualityInfo();
 }
 
 function clearClip() {
@@ -92,10 +107,25 @@ async function openCamera() {
   const request = ++cameraRequest;
   showState("opening", "Waiting for camera permission…");
   try {
-    const camera = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: { facingMode: { ideal: cameraFacing } }
-    });
+    const preset = resolutionPresets[qualityPreference.resolution];
+    const video = {
+      facingMode: { ideal: cameraFacing },
+      width: { ideal: preset.width },
+      height: { ideal: preset.height },
+      frameRate: { ideal: qualityPreference.fps }
+    };
+    automaticQuality = false;
+    let camera;
+    try {
+      camera = await navigator.mediaDevices.getUserMedia({ audio: false, video });
+    } catch (error) {
+      if (request !== cameraRequest) return;
+      if (error.name !== "OverconstrainedError") throw error;
+      automaticQuality = true;
+      camera = await navigator.mediaDevices.getUserMedia({
+        audio: false, video: { facingMode: { ideal: cameraFacing } }
+      });
+    }
     if (request !== cameraRequest) {
       camera.getTracks().forEach(track => track.stop());
       return;
@@ -115,6 +145,7 @@ async function openCamera() {
     const actualFacing = camera.getVideoTracks()[0].getSettings().facingMode;
     const differentCamera = actualFacing && actualFacing !== cameraFacing;
     if (actualFacing === "user" || actualFacing === "environment") cameraFacing = actualFacing;
+    updateQualityInfo();
     showState("ready", differentCamera ? "Requested camera unavailable. Using available camera." : "Ready to record.");
   } catch (error) {
     if (request !== cameraRequest) return;
@@ -294,6 +325,7 @@ function setHidePanel(active) {
   document.querySelector("#offline-status").hidden = active;
   libraryButton.hidden = active;
   cameraSwitchButton.hidden = active;
+  qualityButton.hidden = active;
   if (active) playback.pause();
   updateMediaVisibility();
 }
@@ -339,6 +371,62 @@ exitDownload.addEventListener("click", async () => {
   if (await downloadRecording()) closeHidePanel();
 });
 
+const qualityButton = document.querySelector("#quality-button");
+const qualityDialog = document.querySelector("#quality-dialog");
+const resolutionSelect = document.querySelector("#quality-resolution");
+const fpsSelect = document.querySelector("#quality-fps");
+const qualityApply = document.querySelector("#quality-apply");
+const qualityRequested = document.querySelector("#quality-requested");
+const qualityActual = document.querySelector("#quality-actual");
+const qualityMessage = document.querySelector("#quality-message");
+
+function updateQualityInfo() {
+  const preset = resolutionPresets[qualityPreference.resolution];
+  qualityRequested.textContent = `指定 ${preset.label}・${qualityPreference.fps}fps`;
+  const track = stream?.getVideoTracks()[0];
+  if (!track) {
+    qualityActual.textContent = "取得 カメラを開くと確認できます";
+    return;
+  }
+  const settings = track.getSettings();
+  const dimensions = settings.width && settings.height ? `${settings.width}×${settings.height}` : "解像度不明";
+  const frameRate = Number.isFinite(settings.frameRate) ? `${Math.round(settings.frameRate * 10) / 10}fps（設定値）` : "fps不明";
+  const matchesSize = Math.max(settings.width, settings.height) === preset.width &&
+    Math.min(settings.width, settings.height) === preset.height;
+  const adjusted = automaticQuality || (settings.width && settings.height && !matchesSize) ||
+    (Number.isFinite(settings.frameRate) && Math.abs(settings.frameRate - qualityPreference.fps) > 0.5);
+  qualityActual.textContent = `取得 ${dimensions}・${frameRate}${adjusted ? " · 自動調整" : ""}`;
+}
+
+qualityButton.addEventListener("click", () => {
+  if (qualityButton.disabled) return;
+  resolutionSelect.value = qualityPreference.resolution;
+  fpsSelect.value = String(qualityPreference.fps);
+  qualityMessage.textContent = "非対応の設定は利用可能な画質へ自動調整します。";
+  updateQualityInfo();
+  qualityDialog.showModal();
+});
+document.querySelector("#quality-close").addEventListener("click", () => qualityDialog.close());
+qualityApply.addEventListener("click", async () => {
+  if (recorder || opening || libraryBusy || currentState === "stopping") return;
+  const resolution = resolutionSelect.value;
+  const fps = Number(fpsSelect.value);
+  if (!Object.hasOwn(resolutionPresets, resolution) || ![24, 30, 60].includes(fps)) return;
+  const changed = resolution !== qualityPreference.resolution || fps !== qualityPreference.fps;
+  qualityPreference = { resolution, fps };
+  let remembered = true;
+  try { localStorage.setItem("recoder-quality", JSON.stringify(qualityPreference)); }
+  catch { remembered = false; }
+  qualityMessage.textContent = remembered ? "設定を保存しました。" : "次回起動用に記憶できませんでした。今回の設定は適用します。";
+  if (stream && changed) {
+    releaseCamera();
+    await openCamera();
+  }
+  updateQualityInfo();
+});
+preview.addEventListener("resize", updateQualityInfo);
+updateQualityInfo();
+
 const libraryButton = document.querySelector("#recordings-button");
 const cameraSwitchButton = document.querySelector("#camera-switch");
 cameraSwitchButton.addEventListener("click", async () => {
@@ -357,6 +445,11 @@ const libraryPreview = document.querySelector("#recordings-preview");
 const libraryDownload = document.querySelector("#recordings-download");
 
 function updateLibraryButton() {
+  const qualityLocked = Boolean(recorder || opening || libraryBusy || currentState === "stopping");
+  qualityButton.disabled = qualityLocked;
+  resolutionSelect.disabled = qualityLocked;
+  fpsSelect.disabled = qualityLocked;
+  qualityApply.disabled = qualityLocked;
   cameraSwitchButton.disabled = Boolean(recorder || opening || libraryBusy || currentState === "stopping");
   cameraSwitchButton.textContent = cameraFacing === "environment" ? "前面カメラへ" : "背面カメラへ";
   libraryButton.disabled = Boolean(recorder || opening || libraryBusy || stream || currentState === "stopping");

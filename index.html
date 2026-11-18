@@ -30,6 +30,28 @@
         <button type="button" id="hide-exit-download">ダウンロードする</button>
       </div>
     </dialog>
+    <button type="button" id="quality-button" disabled>画質設定</button>
+    <dialog id="quality-dialog" aria-labelledby="quality-title" lang="ja">
+      <h2 id="quality-title">画質設定</h2>
+      <label for="quality-resolution">解像度</label>
+      <select id="quality-resolution">
+        <option value="4k">4K（3840×2160）</option>
+        <option value="1080p">1080p（1920×1080）</option>
+        <option value="720p">720p（1280×720）</option>
+      </select>
+      <label for="quality-fps">フレームレート</label>
+      <select id="quality-fps">
+        <option value="24">24fps</option>
+        <option value="30">30fps</option>
+        <option value="60" selected>60fps</option>
+      </select>
+      <p id="quality-requested"></p>
+      <p id="quality-actual" role="status"></p>
+      <p id="quality-message" role="status"></p>
+      <p>取得fpsはカメラの設定値です。録画ファイルの情報も確認してください。</p>
+      <button type="button" id="quality-apply">適用</button>
+      <button type="button" id="quality-close">閉じる</button>
+    </dialog>
     <button type="button" id="camera-switch" disabled>前面カメラへ</button>
     <button type="button" id="recordings-button" disabled>録画一覧</button>
     <dialog id="recordings-dialog" aria-labelledby="recordings-title" lang="ja">
