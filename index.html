@@ -8,6 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-180.png">
   <link rel="stylesheet" href="recorder.css">
+  <script defer src="recording-store.js"></script>
   <script defer src="recorder.js"></script>
   <script defer src="offline.js"></script>
 </head>
@@ -28,6 +29,15 @@
         <button type="button" id="hide-exit-discard">破棄する</button>
         <button type="button" id="hide-exit-download">ダウンロードする</button>
       </div>
+    </dialog>
+    <button type="button" id="recordings-button" disabled>録画一覧</button>
+    <dialog id="recordings-dialog" aria-labelledby="recordings-title" lang="ja">
+      <h2 id="recordings-title">保存した録画</h2>
+      <p id="recordings-message" role="status"></p>
+      <video id="recordings-preview" playsinline controls hidden></video>
+      <button type="button" id="recordings-download" disabled>保存・共有</button>
+      <ul id="recordings-list"></ul>
+      <button type="button" id="recordings-close">閉じる</button>
     </dialog>
     <p id="loading" role="status">Loading camera recorder…</p>
   </main>

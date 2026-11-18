@@ -3,7 +3,7 @@
 const scope = self.registration.scope;
 const cachePrefix = "recoder-offline:" + scope + ":";
 // Bump this when changing the HTML, styles, scripts, or icons in the Web template.
-const shellRevision = "5";
+const shellRevision = "6";
 const buildFiles = [
   "Build/4b5c69902ebe78bb670dcf6d671a07d6.loader.js",
   "Build/b266baf77a0022e8ce860a6118ab266e.data",
@@ -15,6 +15,7 @@ const shellFiles = [
   "index.html",
   "recorder.css",
   "recorder.js",
+  "recording-store.js",
   "offline.js",
   "manifest.webmanifest",
   "icon-180.png",

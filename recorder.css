@@ -75,3 +75,27 @@ canvas { touch-action: none; }
 .hide-exit-actions button { min-height: 44px; padding: 6px; }
 
 :root[data-hide-panel] { background: #000000; }
+
+#recordings-button {
+  position: absolute;
+  top: 2.8%;
+  left: 4.1%;
+  min-height: 36px;
+  padding: 5px 10px;
+}
+#recordings-dialog {
+  width: min(94vw, 420px);
+  max-height: 85dvh;
+  padding: 18px;
+  border: 1px solid #435168;
+  border-radius: 12px;
+  background: #10141b;
+  color: #f2f4f8;
+}
+#recordings-dialog::backdrop { background: #000a; }
+#recordings-dialog h2 { margin: 0 0 12px; font-size: 20px; }
+#recordings-dialog button { min-height: 44px; padding: 6px 12px; margin: 4px; }
+#recordings-preview { height: 220px; object-fit: contain; }
+#recordings-list { list-style: none; margin: 12px 0; padding: 0; }
+#recordings-list li { padding: 8px 0; border-top: 1px solid #435168; }
+#recordings-list p { margin: 0 0 4px; font-size: 14px; }
