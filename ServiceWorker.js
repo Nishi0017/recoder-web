@@ -3,7 +3,7 @@
 const scope = self.registration.scope;
 const cachePrefix = "recoder-offline:" + scope + ":";
 // Bump this when changing the HTML, styles, scripts, or icons in the Web template.
-const shellRevision = "8";
+const shellRevision = "9";
 const buildFiles = [
   "Build/4b5c69902ebe78bb670dcf6d671a07d6.loader.js",
   "Build/b266baf77a0022e8ce860a6118ab266e.data",
@@ -63,3 +63,7 @@ self.addEventListener("fetch", event => {
 
 
 
+self.addEventListener('message', event => {
+  if (event.data?.type === 'GET_VERSION') event.ports[0]?.postMessage({revision: shellRevision});
+  if (event.data?.type === 'ACTIVATE_UPDATE') event.waitUntil(self.skipWaiting());
+});
